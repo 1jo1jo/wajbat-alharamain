@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الرئيسية | وجبة الحرمين</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home" data-nav="1">
+<div id="app">
+<section class="view" id="v-home">
+  <div class="top">
+    <button class="ic" onclick="drawer(1)"><svg class="i "><use href="#menu"/></svg></button>
+    <div class="logo"><img src="images/logo.png" alt="" onerror="this.remove()"></div>
+    <div class="t"><b>وجبة الحرمين</b><span>طريقك إلى الطمأنينة</span></div>
+    <button class="ic" onclick="go('notif')"><svg class="i "><use href="#bell"/></svg></button>
+  </div>
+  <div class="hero">
+    <div><p>السلام عليكم،</p><h1>رحلتك المباركة تبدأ هنا</h1><a onclick="go('donate')"><svg class="i "><use href="#arrow-r"/></svg>تبرع الآن</a></div>
+    <svg viewBox="0 0 100 90" fill="#fff"><path d="M50 6c-9 8-18 14-18 26v8H20V20l-6-12-6 12v62h28V60c0-8 6-14 14-14s14 6 14 14v22h28V20l-6-12-6 12v20H68v-8C68 20 59 14 50 6z"/></svg>
+  </div>
+  <div class="sec"><h3>وجبات الحجاج</h3><a onclick="go('meals')">عرض الكل</a></div>
+  <p class="sub">وجبات طازجة تصل إليك في الوقت المناسب</p>
+  <div id="homeMeals"></div>
+  <div class="list"><button class="it" onclick="go('locations')"><span class="ico-sq"><svg class="i "><use href="#pin-f"/></svg></span><b>مواقع التوزيع<small>تعرف على أماكن استلام الوجبات</small></b><span class="chev"><svg class="i "><use href="#chev-r"/></svg></span></button></div>
+  <div class="tip"><span class="chev" style="color:var(--gold)"><svg class="i "><use href="#chev-r"/></svg></span><div><b>نصيحة اليوم</b><small><b>أكثر من التلبية بقلب حاضر وروح مطمئنة.</b></small></div><i><svg class="i "><use href="#bulb"/></svg></i></div>
+</section>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>

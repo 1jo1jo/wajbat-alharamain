@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مواقع التوزيع | وجبة الحرمين</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="locations" data-nav="0">
+<div id="app">
+<section class="view gray" id="v-locations" style="padding-bottom:100px">
+  <div class="hd">
+    <div class="bar"><button onclick="back()"><svg class="i "><use href="#arrow-l"/></svg></button><h2>مواقع التوزيع<small>مكة المكرمة والمدينة المنورة</small></h2><span style="width:32px"></span></div>
+    <div class="tabs"><button class="on" onclick="tab(0)">مكة المكرمة</button><button onclick="tab(1)">المدينة المنورة</button></div>
+  </div>
+  <div class="pad" id="locList"></div>
+  <button class="locbtn" onclick="locate()"><svg class="i "><use href="#target"/></svg>تحديد موقعي الحالي</button>
+</section>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>

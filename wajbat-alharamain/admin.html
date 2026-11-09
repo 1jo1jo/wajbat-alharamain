@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الأدمن | وجبة الحرمين</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body { font-family:'IBM Plex Sans Arabic',sans-serif; background:#f7f8f7; }
+        .page { max-width:1250px; margin:auto; padding:30px 20px; }
+        .header,.heading { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        h1,h2 { color:#0c4d3a; }
+        .header { margin-bottom:25px; }
+        .header p { color:#777; margin:5px 0; }
+        .btn { border:0; border-radius:9px; padding:10px 17px; font-family:inherit; cursor:pointer; }
+        .green { background:#0c4d3a; color:white; }
+        .gold { background:#c4963a; color:white; }
+        .red { background:#fce8e8; color:#b42318; }
+        .light { background:#eee; color:#333; }
+        .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:17px; margin-bottom:25px; }
+        .stat,.section { background:white; border:1px solid #eee; border-radius:15px; padding:22px; box-shadow:0 3px 12px #00000008; }
+        .stat h3 { color:#777; font-size:15px; font-weight:500; }
+        .stat strong { color:#0c4d3a; font-size:28px; }
+        .section { margin-bottom:25px; }
+        .heading { margin-bottom:20px; }
+        .heading h2 { margin:0; font-size:21px; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; min-width:650px; border-collapse:collapse; }
+        th,td { padding:13px; text-align:right; border-bottom:1px solid #eee; }
+        th { background:#f8faf9; color:#0c4d3a; }
+        .badge { padding:5px 10px; border-radius:20px; background:#eee; font-size:12px; }
+        .active { background:#e4f3e9; color:#187443; }
+        .inactive { background:#fce8e8; color:#b42318; }
+        .empty { text-align:center; padding:25px; color:#888; }
+        .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+        input,select { width:100%; box-sizing:border-box; padding:11px; border:1px solid #ddd; border-radius:9px; font-family:inherit; }
+        .form-grid .full { grid-column:1/-1; }
+        @media(max-width:650px) {
+            .stats { grid-template-columns:1fr; }
+            .page { padding:20px 12px; }
+            .form-grid { grid-template-columns:1fr; }
+            .form-grid .full { grid-column:auto; }
+        }
+    </style>
+</head>
+
+<body data-page="admin" data-nav="0">
+
+<div id="app">
+<main class="page">
+
+    <header class="header">
+        <div>
+            <h1>لوحة تحكم الأدمن</h1>
+            <p>إدارة المستخدمين ومتابعة جميع الطلبات</p>
+        </div>
+        <button class="btn red" onclick="logout()">تسجيل الخروج</button>
+    </header>
+
+    <section class="stats">
+        <div class="stat">
+            <h3>إجمالي الطلبات</h3>
+            <strong id="totalOrders">0</strong>
+        </div>
+        <div class="stat">
+            <h3>إجمالي المستخدمين</h3>
+            <strong id="totalUsers">0</strong>
+        </div>
+        <div class="stat">
+            <h3>الطلبات المكتملة</h3>
+            <strong id="completedOrders">0</strong>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="heading">
+            <h2>جميع الطلبات</h2>
+            <button class="btn light" onclick="loadOrders()">تحديث</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>رقم العميل</th>
+                    <th>الحالة</th>
+                    <th>طريقة التوصيل</th>
+                    <th>الإجراء</th>
+                </tr>
+                </thead>
+                <tbody id="ordersTable">
+                <tr><td colspan="5" class="empty">جاري التحميل...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="heading">
+            <h2>إدارة المستخدمين</h2>
+            <button class="btn light" onclick="loadUsers()">تحديث</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>رقم المستخدم</th>
+                    <th>الاسم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الدور</th>
+                    <th>الحالة</th>
+                    <th>الإجراء</th>
+                </tr>
+                </thead>
+                <tbody id="usersTable">
+                <tr><td colspan="6" class="empty">جاري التحميل...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="heading">
+            <h2>إضافة مستخدم جديد</h2>
+        </div>
+
+        <form id="addUserForm" class="form-grid">
+
+            <input id="fullName" placeholder="الاسم الكامل" required>
+            <input id="username" placeholder="اسم المستخدم" required>
+            <input id="email" type="email" placeholder="البريد الإلكتروني" required>
+            <input id="phone" placeholder="رقم الجوال" required>
+            <input id="password" type="password" placeholder="كلمة المرور" required>
+
+            <select id="role" required>
+                <option value="">اختاري الدور</option>
+                <option value="user">مستخدم</option>
+                <option value="restaurant">مطعم</option>
+                <option value="courier">مندوب</option>
+                <option value="admin">أدمن</option>
+            </select>
+
+            <button class="btn green full" type="submit">إضافة المستخدم</button>
+       </form>
+</section>
+
+<section class="section">
+
+    <div class="heading">
+        <h2>التقارير</h2>
+    </div>
+
+    <div class="report-box">
+
+        <p>اختاري نوع التقرير والفترة الزمنية لإنشاء تقرير PDF.</p>
+
+        <div class="report-filters">
+
+            <div>
+                <label>نوع التقرير</label>
+                <select id="reportType">
+    <option value="orders">تقرير الطلبات</option>
+    <option value="donations">تقرير التبرعات</option>
+    <option value="payments">تقرير المدفوعات</option>
+    <option value="meals">تقرير الوجبات</option>
+    <option value="organisations">تقرير الجمعيات</option>
+</select>
+            </div>
+
+            <div>
+                <label>من تاريخ</label>
+                <input type="date" id="reportFrom">
+            </div>
+
+            <div>
+                <label>إلى تاريخ</label>
+                <input type="date" id="reportTo">
+            </div>
+
+        </div>
+
+        <div class="report-actions">
+            <button class="btn green" onclick="generateAdminReport()">
+                إنشاء التقرير PDF
+            </button>
+        </div>
+
+        <p class="report-note">
+            سيتم فتح نافذة الطباعة، ويمكن اختيار حفظ كملف PDF.
+        </p>
+
+    </div>
+
+    </section>
+
+</main>
+</div>
+
+<script src="js/script.js"></script>
+
+<script>
+(() => {
+    const API = 'https://haramain-backend.onrender.com';
+    const $ = id => document.getElementById(id);
+
+    let orders = [];
+    let users = [];
+
+    function token() {
+        try {
+            return JSON.parse(localStorage.getItem('authToken')) || '';
+        } catch {
+            return '';
+        }
+    }
+
+    async function api(path, options = {}) {
+        const headers = {
+            ...(options.headers || {}),
+            Authorization: 'Bearer ' + token()
+        };
+
+        if (options.body) headers['Content-Type'] = 'application/json';
+
+        const response = await fetch(API + path, { ...options, headers });
+        const text = await response.text();
+
+        let data;
+        try { data = text ? JSON.parse(text) : null; }
+        catch { data = text; }
+
+        if (!response.ok) {
+            throw new Error(data?.message || data?.error || text || 'حدث خطأ');
+        }
+
+        return data;
+    }
+
+    function notify(message) {
+        if (typeof toast === 'function') toast(message);
+        else alert(message);
+    }
+
+    function esc(value) {
+        return String(value ?? '').replace(/[&<>"']/g, c => ({
+            '&':'&amp;', '<':'&lt;', '>':'&gt;',
+            '"':'&quot;', "'":'&#39;'
+        })[c]);
+    }
+
+    function userId(user) {
+        return user.userId ?? user.id;
+    }
+
+    function statusText(status) {
+        const labels = {
+            pending:'بانتظار التأكيد',
+            confirmed:'تم التأكيد',
+            preparing:'قيد التجهيز',
+            ready:'جاهز',
+            delivered:'تم التسليم',
+            cancelled:'ملغي'
+        };
+        return labels[String(status).toLowerCase()] || status || 'غير محدد';
+    }
+
+    // تحميل الطلبات
+
+    window.loadOrders = async function() {
+        $('ordersTable').innerHTML =
+            '<tr><td colspan="5" class="empty">جاري التحميل...</td></tr>';
+
+        try {
+            const data = await api('/admin/orders');
+            orders = Array.isArray(data) ? data : [];
+
+            $('totalOrders').textContent = orders.length;
+            $('completedOrders').textContent =
+                orders.filter(o => String(o.status).toLowerCase() === 'delivered').length;
+
+            $('ordersTable').innerHTML = orders.length
+                ? orders.map(o => `
+                    <tr>
+                        <td>#${esc(o.requestId)}</td>
+                        <td>${esc(o.userId)}</td>
+                        <td><span class="badge">${esc(statusText(o.status))}</span></td>
+                        <td>${esc(o.deliveryMethod || 'غير محدد')}</td>
+                        <td>
+                            <select onchange="changeOrderStatus(${Number(o.requestId)},this.value)">
+                                <option value="">تغيير الحالة</option>
+                                <option value="pending">بانتظار التأكيد</option>
+                                <option value="confirmed">تم التأكيد</option>
+                                <option value="preparing">قيد التجهيز</option>
+                                <option value="ready">جاهز</option>
+                                <option value="delivered">تم التسليم</option>
+                            </select>
+                        </td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="5" class="empty">لا توجد طلبات.</td></tr>';
+
+        } catch (e) {
+            $('ordersTable').innerHTML =
+                `<tr><td colspan="5" class="empty">${esc(e.message)}</td></tr>`;
+        }
+    };
+
+window.generateAdminReport = async function() {
+
+    const type = $('reportType').value;
+    const from = $('reportFrom').value;
+    const to = $('reportTo').value;
+
+    if (from && to && from > to) {
+        notify('تاريخ البداية يجب أن يكون قبل تاريخ النهاية.');
+        return;
+    }
+
+    let data = [];
+    let title = '';
+    let headers = [];
+    let rows = '';
+    let totalAmount = null;
+
+    try {
+
+        // تقرير الطلبات
+        if (type === 'orders') {
+
+            title = 'تقرير الطلبات';
+            data = [...orders];
+
+            headers = [
+                'رقم الطلب',
+                'رقم العميل',
+                'الحالة',
+                'طريقة التوصيل',
+                'تاريخ الطلب'
+            ];
+
+            data = data.filter(item => {
+                const date = item.createdAt || item.requestDate || item.date;
+
+                if (!date) return !from && !to;
+
+                const d = String(date).substring(0, 10);
+
+                if (from && d < from) return false;
+                if (to && d > to) return false;
+
+                return true;
+            });
+
+            rows = data.map(item => `
+                <tr>
+                    <td>#${esc(item.requestId ?? item.id)}</td>
+                    <td>${esc(item.userId)}</td>
+                    <td>${esc(statusText(item.status))}</td>
+                    <td>${esc(item.deliveryMethod || 'غير محدد')}</td>
+                    <td>${esc(item.createdAt || item.requestDate || item.date || 'غير محدد')}</td>
+                </tr>
+            `).join('');
+
+        }
+
+        // تقرير التبرعات
+        else if (type === 'donations') {
+
+            title = 'تقرير التبرعات';
+
+            data = await api('/donations');
+
+            data = Array.isArray(data) ? data : [];
+
+            headers = [
+                'رقم التبرع',
+                'رقم المستخدم',
+                'رقم الطلب',
+                'المبلغ',
+                'الحالة',
+                'تاريخ التبرع'
+            ];
+
+            data = data.filter(item => {
+                const date = item.donationDate;
+
+                if (!date) return !from && !to;
+
+                const d = String(date).substring(0, 10);
+
+                if (from && d < from) return false;
+                if (to && d > to) return false;
+
+                return true;
+            });
+
+            totalAmount = data.reduce(
+                (sum, item) => sum + Number(item.amount || 0), 0
+            );
+
+            rows = data.map(item => `
+                <tr>
+                    <td>${esc(item.donationID)}</td>
+                    <td>${esc(item.userId)}</td>
+                    <td>${esc(item.requestId)}</td>
+                    <td>${esc(item.amount)} ريال</td>
+                    <td>${esc(item.donationStatus)}</td>
+                    <td>${esc(item.donationDate || 'غير محدد')}</td>
+                </tr>
+            `).join('');
+
+        }
+
+        // تقرير المدفوعات
+        else if (type === 'payments') {
+
+            title = 'تقرير المدفوعات';
+
+            data = await api('/payments');
+
+            data = Array.isArray(data) ? data : [];
+
+            headers = [
+                'رقم الدفع',
+                'رقم الطلب',
+                'رقم التبرع',
+                'المبلغ',
+                'طريقة الدفع',
+                'الحالة',
+                'تاريخ الدفع'
+            ];
+
+            data = data.filter(item => {
+                const date = item.paymentDate;
+
+                if (!date) return !from && !to;
+
+                const d = String(date).substring(0, 10);
+
+                if (from && d < from) return false;
+                if (to && d > to) return false;
+
+                return true;
+            });
+
+            totalAmount = data.reduce(
+                (sum, item) => sum + Number(item.amount || 0), 0
+            );
+
+            rows = data.map(item => `
+                <tr>
+                    <td>${esc(item.paymentId)}</td>
+                    <td>${esc(item.requestId)}</td>
+                    <td>${esc(item.donationID ?? 'لا يوجد')}</td>
+                    <td>${esc(item.amount)} ريال</td>
+                    <td>${esc(item.paymentMethod)}</td>
+                    <td>${esc(item.paymentStatus)}</td>
+                    <td>${esc(item.paymentDate || 'غير محدد')}</td>
+                </tr>
+            `).join('');
+
+        }
+
+        // تقرير الوجبات
+        else if (type === 'meals') {
+
+            title = 'تقرير الوجبات';
+
+            data = await api('/meals');
+
+            data = Array.isArray(data) ? data : [];
+
+            headers = [
+                'رقم الوجبة',
+                'اسم الوجبة',
+                'الوصف',
+                'السعر',
+                'الكمية',
+                'المطعم',
+                'المدينة'
+            ];
+
+            rows = data.map(item => `
+                <tr>
+                    <td>${esc(item.mealID ?? item.mealId ?? item.id)}</td>
+                    <td>${esc(item.mealName ?? item.name)}</td>
+                    <td>${esc(item.description)}</td>
+                    <td>${esc(item.price)} ريال</td>
+                    <td>${esc(item.quantity)}</td>
+                    <td>${esc(item.organisationName ?? item.restaurantName ?? 'غير محدد')}</td>
+                    <td>${esc(item.city || 'غير محدد')}</td>
+                </tr>
+            `).join('');
+
+        }
+
+        // تقرير الجمعيات
+        else if (type === 'organisations') {
+
+            title = 'تقرير الجمعيات';
+
+            data = await api('/organisations');
+
+            data = Array.isArray(data) ? data : [];
+
+            headers = [
+                'رقم الجمعية',
+                'اسم الجمعية',
+                'رقم التواصل',
+                'العنوان',
+                'المدينة'
+            ];
+
+            rows = data.map(item => `
+                <tr>
+                    <td>${esc(item.organisationID)}</td>
+                    <td>${esc(item.organisationName)}</td>
+                    <td>${esc(item.phone)}</td>
+                    <td>${esc(item.address)}</td>
+                    <td>${esc(item.city)}</td>
+                </tr>
+            `).join('');
+
+        }
+
+        const reportWindow = window.open('', '_blank');
+
+        if (!reportWindow) {
+            notify('يرجى السماح بفتح النوافذ المنبثقة.');
+            return;
+        }
+
+        reportWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+
+            <head>
+                <meta charset="UTF-8">
+                <title>${title} - وجبة الحرمين</title>
+
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 35px;
+                        color: #333;
+                    }
+
+                    h1, h2 {
+                        color: #0c4d3a;
+                        text-align: center;
+                    }
+
+                    .info {
+                        margin: 25px 0;
+                        line-height: 2;
+                    }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 12px;
+                        text-align: right;
+                    }
+
+                    th {
+                        background: #0c4d3a;
+                        color: white;
+                    }
+
+                    .summary {
+                        margin-top: 20px;
+                        padding: 15px;
+                        background: #f2f6f3;
+                        border-radius: 8px;
+                        line-height: 2;
+                    }
+
+                    @media print {
+                        body { padding: 10px; }
+                    }
+                </style>
+            </head>
+
+            <body>
+
+                <h1>وجبة الحرمين</h1>
+                <h2>${title}</h2>
+
+                <div class="info">
+                    <p>تاريخ إنشاء التقرير:
+                    ${new Date().toLocaleDateString('ar-SA')}</p>
+
+                    ${['orders', 'donations', 'payments'].includes(type) ? `
+                        <p>من تاريخ: ${from || 'جميع التواريخ'}</p>
+                        <p>إلى تاريخ: ${to || 'جميع التواريخ'}</p>
+                    ` : ''}
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            ${headers.map(h => `<th>${h}</th>`).join('')}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${rows || `
+                            <tr>
+                                <td colspan="${headers.length}">
+                                    لا توجد بيانات.
+                                </td>
+                            </tr>
+                        `}
+                    </tbody>
+                </table>
+
+                <div class="summary">
+                    <strong>إجمالي السجلات: ${data.length}</strong>
+
+                    ${totalAmount !== null ? `
+                        <br>
+                        <strong>إجمالي المبالغ: ${totalAmount.toFixed(2)} ريال</strong>
+                    ` : ''}
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    };
+                <\/script>
+
+            </body>
+            </html>
+        `);
+
+        reportWindow.document.close();
+
+    } catch (error) {
+        notify('تعذر إنشاء التقرير: ' + error.message);
+    }
+};
+   // تحديث حالة الطلب
+
+    window.changeOrderStatus = async function(id, status) {
+        if (!status) return;
+
+        try {
+            await api('/admin/orders/' + id + '/status', {
+                method:'PUT',
+                body:JSON.stringify({ status })
+            });
+
+            notify('تم تحديث حالة الطلب.');
+            loadOrders();
+
+        } catch (e) {
+            notify('تعذر تحديث الطلب: ' + e.message);
+        }
+    };
+
+    // تحميل المستخدمين
+
+    window.loadUsers = async function() {
+        $('usersTable').innerHTML =
+            '<tr><td colspan="6" class="empty">جاري التحميل...</td></tr>';
+
+        try {
+            const data = await api('/admin/users');
+            users = Array.isArray(data) ? data : [];
+
+            $('totalUsers').textContent = users.length;
+
+            $('usersTable').innerHTML = users.length
+                ? users.map(u => {
+                    const id = userId(u);
+                    const active = u.active ?? u.isActive ?? true;
+
+                    return `
+                        <tr>
+                            <td>${esc(id)}</td>
+                            <td>${esc(u.fullName)}</td>
+                            <td>${esc(u.email)}</td>
+                            <td>${esc(u.role)}</td>
+                            <td>
+                                <span class="badge ${active ? 'active' : 'inactive'}">
+                                    ${active ? 'نشط' : 'موقوف'}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn ${active ? 'red' : 'green'}"
+                                    onclick="toggleUser(${Number(id)},${!active})">
+                                    ${active ? 'إيقاف' : 'تفعيل'}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('')
+                : '<tr><td colspan="6" class="empty">لا يوجد مستخدمون.</td></tr>';
+
+        } catch (e) {
+            $('usersTable').innerHTML =
+                `<tr><td colspan="6" class="empty">${esc(e.message)}</td></tr>`;
+        }
+    };
+
+    // تفعيل أو إيقاف مستخدم
+
+    window.toggleUser = async function(id, isActive) {
+        if (!confirm(isActive ? 'تفعيل هذا الحساب؟' : 'إيقاف هذا الحساب؟')) return;
+
+   try {
+    console.log('بيانات المستخدم:', body);
+
+    const result = await api('/admin/users', {
+        method:'POST',
+        body:JSON.stringify(body)
+    });
+
+    console.log('رد الباك إند:', result);
+
+    alert('تمت إضافة المستخدم بنجاح');
+    this.reset();
+    loadUsers();
+
+} catch (error) {
+    console.error('خطأ إضافة المستخدم:', error);
+    alert('فشل إضافة المستخدم: ' + error.message);
+}
+    };
+
+    // إضافة مستخدم
+
+    $('addUserForm').addEventListener('submit', async function(e) {
+    
+        e.preventDefault();
+
+        const body = {
+            fullName:$('fullName').value.trim(),
+            username:$('username').value.trim(),
+            email:$('email').value.trim(),
+            phone:$('phone').value.trim(),
+            password:$('password').value,
+            role:$('role').value
+        };
+
+        try {
+            await api('/admin/users', {
+                method:'POST',
+                body:JSON.stringify(body)
+            });
+
+            notify('تمت إضافة المستخدم.');
+            this.reset();
+            loadUsers();
+
+        } catch (error) {
+            notify('تعذرت إضافة المستخدم: ' + error.message);
+        }
+    });
+
+    loadOrders();
+    loadUsers();
+
+})();
+</script>
+
+</body>
+</html>

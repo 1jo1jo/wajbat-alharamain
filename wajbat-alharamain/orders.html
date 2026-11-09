@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>طلباتي | وجبة الحرمين</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="orders" data-nav="1">
+<div id="app">
+<section class="view gray2" id="v-orders">
+  <div class="bar"><button onclick="back()"><svg class="i "><use href="#arrow-l"/></svg></button><h2>طلباتي<small>سجل الطلبات والتبرعات</small></h2><span style="width:32px"></span></div>
+  <div class="oc">
+    <div id="cartItems"></div>
+    <div id="checkout" class="co">
+      <div class="co-l">
+        <h3 class="lbl2">وقت التوصيل المتوقع</h3>
+        <div class="tbox"><svg class="i "><use href="#clock"/></svg><span id="dlv"></span></div>
+        <h3 class="lbl2">كود خصم</h3>
+        <div class="coupon"><input class="inp2" id="code" placeholder="كود خصم"><button class="cbtn" onclick="applyCode()">تطبيق</button></div>
+        <h3 class="lbl2">طريقة السداد:</h3>
+        <div class="pgrid">
+          <button class="pm sel" data-k="card" onclick="setPay('card')"><span class="rd"></span><svg class="i "><use href="#card-f"/></svg><span class="pt">دفع إلكتروني (مدى / فيزا)</span></button>
+          <button class="pm " data-k="cash" onclick="setPay('cash')"><span class="rd"></span><svg class="i "><use href="#cash"/></svg><span class="pt">الدفع عند الاستلام</span></button>
+          <button class="pm " data-k="apple" onclick="setPay('apple')"><span class="rd"></span><svg class="i "><use href="#apple"/></svg><span class="pt">Apple Pay</span></button>
+          <button class="pm " data-k="tabby" onclick="setPay('tabby')"><span class="rd"></span><span class="tabby">tabby</span><span class="pt">تابي</span></button>
+          <button class="pm " data-k="tamara" onclick="setPay('tamara')"><span class="rd"></span><span class="tamara">tamara</span><span class="pt">تمارا</span></button>
+          <button class="pm " data-k="mada" onclick="setPay('mada')"><span class="rd"></span><svg class="i "><use href="#card-f"/></svg><span class="pt">مدى</span></button>
+        </div>
+      </div>
+      <div class="co-r">
+        <div id="cardBox">
+          <h3 class="lbl2 sm">بيانات البطاقة</h3>
+          <div class="cbx">
+            <input class="inp2" id="cn" placeholder="رقم البطاقة" inputmode="numeric" autocomplete="cc-number" oninput="fmtCard(this)"><small class="cnt" id="cnC">0/19</small>
+            <div class="two2"><div><input class="inp2" id="ce" placeholder="تاريخ الانتهاء" inputmode="numeric" autocomplete="cc-exp" oninput="fmtExp(this)"></div>
+            <div><input class="inp2" id="cv" placeholder="CVV" inputmode="numeric" autocomplete="cc-csc" oninput="fmtCvv(this)"><small class="cnt" id="cvC">0/4</small></div></div>
+            <input class="inp2" id="ch" placeholder="اسم حامل البطاقة" autocomplete="cc-name">
+          </div>
+        </div>
+        <div class="sumbox"><div class="sr"><span>المجموع</span><b id="sumV">0 ر.س</b></div><div class="sr" id="discR" style="display:none"><span>الخصم</span><b id="discV"></b></div><hr><div class="sr tot"><span>الإجمالي النهائي</span><b id="totV">0 ر.س</b></div></div>
+        <button class="paybtn" onclick="payNow()">إتمام الطلب والدفع</button>
+      </div>
+    </div>
+    <div id="hist"></div>
+  </div>
+</section>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>

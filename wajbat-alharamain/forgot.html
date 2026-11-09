@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>نسيت كلمة المرور | وجبة الحرمين</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="forgot" data-nav="0">
+<div id="app">
+<section class="view" id="v-login">
+  <button class="home" onclick="back()"><svg class="i "><use href="#arrow-r"/></svg></button>
+  <div class="lg"><img src="images/logo.png" alt="" onerror="this.remove()"></div>
+  <h1 class="rt">نسيت كلمة المرور؟</h1><p class="rs" id="fSub">أدخل بريدك الإلكتروني المسجّل وسنساعدك على استعادة حسابك</p>
+  <form class="lf" id="fStep1" onsubmit="forgotStep1();return false">
+    <div class="fld"><svg class="i r"><use href="#mail"/></svg><input class="inp" id="fe" type="email" placeholder="البريد الإلكتروني" autocomplete="email"></div>
+    <button class="btn-green" type="submit">متابعة</button>
+  </form>
+  <form class="lf" id="fStep2" style="display:none" onsubmit="forgotStep2();return false">
+    <div class="fld"><svg class="i r"><use href="#lock"/></svg><button type="button" class="eye" onclick="toggleEye(this)"><svg class="i "><use href="#eye-off"/></svg></button><input class="inp" id="f1" type="password" placeholder="كلمة المرور الجديدة" autocomplete="new-password"></div>
+    <div class="fld"><svg class="i r"><use href="#lock"/></svg><button type="button" class="eye" onclick="toggleEye(this)"><svg class="i "><use href="#eye-off"/></svg></button><input class="inp" id="f2" type="password" placeholder="تأكيد كلمة المرور الجديدة" autocomplete="new-password"></div>
+    <button class="btn-green" type="submit">حفظ كلمة المرور</button>
+  </form>
+  <p class="new lf" style="margin-top:6px">تذكرت كلمة المرور؟ <b onclick="go('login')">تسجيل الدخول</b></p>
+</section>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>

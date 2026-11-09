@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>التبرع | وجبة الحرمين</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="donate" data-nav="1">
+<div id="app">
+<section class="view gray" id="v-donate">
+  <div class="bar"><span style="width:32px"></span><h2>التبرع</h2><button onclick="back()"><svg class="i "><use href="#chev-r"/></svg></button></div>
+  <div class="banner" style="background-image:linear-gradient(180deg,#0000 30%,#0008),url(images/donate-banner.jpg)"><h2>بالعطاء..<br>نصنع أثراً في رحلتهم</h2><p>تبرع اليوم .. يساهم في توفير الوجبات والخدمات الأساسية لضيوف الرحمن.</p></div>
+  <div class="card"><h3><svg class="i "><use href="#wallet"/></svg> مبلغ التبرع</h3>
+    <div class="opts o4" id="amts"></div>
+    <p class="lbl">أدخل المبلغ المخصص</p>
+    <input class="inp" id="custom" type="number" min="1" inputmode="numeric" placeholder="أدخل المبلغ المخصص (ر.س)">
+  </div>
+  <div class="card"><h3><svg class="i "><use href="#heart"/></svg> نوع التبرع</h3>
+    <div class="opts o4" id="types"></div></div>
+  <div class="card"><h3><svg class="i "><use href="#calendar"/></svg> تكرار التبرع</h3>
+    <div class="opts o2" id="freq"></div></div>
+  <div class="card"><h3><svg class="i "><use href="#card-f"/></svg> طريقة الدفع</h3>
+    <div class="opts o4" id="pays"></div></div>
+  <button class="donate-btn" onclick="donate()"><svg class="i "><use href="#heart-f"/></svg>تبرع الآن</button>
+</section>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>

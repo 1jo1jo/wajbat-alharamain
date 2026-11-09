@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المندوب | وجبة الحرمين</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body { font-family:'IBM Plex Sans Arabic',sans-serif; background:#f7f8f7; }
+        .page { max-width:1150px; margin:auto; padding:30px 20px; }
+        .header,.heading { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        h1,h2 { color:#0c4d3a; }
+        .header { margin-bottom:25px; }
+        .header p { color:#777; margin:5px 0; }
+        .btn { border:0; border-radius:9px; padding:10px 17px; font-family:inherit; cursor:pointer; }
+        .green { background:#0c4d3a; color:white; }
+        .gold { background:#c4963a; color:white; }
+        .red { background:#fce8e8; color:#b42318; }
+        .light { background:#eee; color:#333; }
+        .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:17px; margin-bottom:25px; }
+        .stat,.section,.order-card { background:white; border:1px solid #eee; border-radius:15px; padding:22px; box-shadow:0 3px 12px #00000008; }
+        .stat h3 { color:#777; font-size:15px; font-weight:500; }
+        .stat strong { color:#0c4d3a; font-size:28px; }
+        .section { margin-bottom:25px; }
+        .heading { margin-bottom:20px; }
+        .heading h2 { margin:0; font-size:21px; }
+        .orders-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:17px; }
+        .order-card h3 { color:#0c4d3a; margin-top:0; }
+        .order-card p { color:#666; font-size:14px; }
+        .badge { display:inline-block; padding:6px 11px; border-radius:20px; background:#e4efff; color:#2456a6; font-size:12px; }
+        .empty { text-align:center; padding:25px; color:#888; }
+        @media(max-width:650px) {
+            .stats { grid-template-columns:1fr; }
+            .page { padding:20px 12px; }
+        }
+    </style>
+</head>
+
+<body data-page="courier" data-nav="0">
+
+<div id="app">
+<main class="page">
+
+    <header class="header">
+        <div>
+            <h1>لوحة المندوب</h1>
+            <p>متابعة طلبات التوصيل إلى نقاط التوزيع</p>
+        </div>
+
+        <button class="btn red" onclick="logout()">تسجيل الخروج</button>
+    </header>
+
+    <section class="stats">
+        <div class="stat">
+            <h3>إجمالي طلباتي</h3>
+            <strong id="totalOrders">0</strong>
+        </div>
+
+        <div class="stat">
+            <h3>طلبات قيد التوصيل</h3>
+            <strong id="activeOrders">0</strong>
+        </div>
+
+        <div class="stat">
+            <h3>طلبات تم تسليمها</h3>
+            <strong id="deliveredOrders">0</strong>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="heading">
+            <h2>طلباتي المسندة</h2>
+            <button class="btn light" onclick="loadOrders()">تحديث الطلبات</button>
+        </div>
+
+        <div id="ordersGrid" class="orders-grid">
+            <p class="empty">جاري تحميل الطلبات...</p>
+        </div>
+    </section>
+
+</main>
+</div>
+
+<script src="js/script.js"></script>
+
+<script>
+(() => {
+    const API = 'https://haramain-backend.onrender.com';
+    const $ = id => document.getElementById(id);
+
+    let orders = [];
+
+    function token() {
+        try {
+            return JSON.parse(localStorage.getItem('authToken')) || '';
+        } catch {
+            return '';
+        }
+    }
+
+    async function api(path, options = {}) {
+        const headers = {
+            ...(options.headers || {}),
+            Authorization:'Bearer ' + token()
+        };
+
+        if (options.body) headers['Content-Type'] = 'application/json';
+
+        const response = await fetch(API + path, { ...options, headers });
+        const text = await response.text();
+
+        let data;
+        try { data = text ? JSON.parse(text) : null; }
+        catch { data = text; }
+
+        if (!response.ok) {
+            throw new Error(data?.message || data?.error || text || 'حدث خطأ');
+        }
+
+        return data;
+    }
+
+    function esc(value) {
+        return String(value ?? '').replace(/[&<>"']/g, c => ({
+            '&':'&amp;', '<':'&lt;', '>':'&gt;',
+            '"':'&quot;', "'":'&#39;'
+        })[c]);
+    }
+
+    function notify(message) {
+        if (typeof toast === 'function') toast(message);
+        else alert(message);
+    }
+
+    // تحميل طلبات المندوب
+
+    window.loadOrders = async function() {
+        $('ordersGrid').innerHTML =
+            '<p class="empty">جاري تحميل الطلبات...</p>';
+
+        try {
+            const data = await api('/courier/orders');
+            orders = Array.isArray(data) ? data : [];
+
+            $('totalOrders').textContent = orders.length;
+
+            $('activeOrders').textContent =
+                orders.filter(o =>
+                    ['ready','confirmed'].includes(
+                        String(o.status || '').toLowerCase()
+                    )
+                ).length;
+
+            $('deliveredOrders').textContent =
+                orders.filter(o =>
+                    String(o.status || '').toLowerCase() === 'delivered'
+                ).length;
+
+            renderOrders();
+
+        } catch (error) {
+            $('ordersGrid').innerHTML =
+                `<p class="empty">تعذر تحميل الطلبات: ${esc(error.message)}</p>`;
+        }
+    };
+
+    function renderOrders() {
+        if (!orders.length) {
+            $('ordersGrid').innerHTML =
+                '<p class="empty">لا توجد طلبات مسندة إليك حاليًا.</p>';
+            return;
+        }
+
+        $('ordersGrid').innerHTML = orders.map(order => {
+            const id = Number(order.requestId);
+            const status = String(order.status || '').toLowerCase();
+
+            const labels = {
+                confirmed:'تم تأكيد الطلب',
+                preparing:'قيد التجهيز',
+                ready:'جاهز للاستلام من المطعم',
+                delivered:'تم التسليم إلى نقطة التوزيع'
+            };
+
+            const action = status !== 'delivered'
+                ? `<button class="btn green" onclick="deliverOrder(${id})">
+                       تأكيد التسليم لنقطة التوزيع
+                   </button>`
+                : '<span class="badge">تم التسليم</span>';
+
+            return `
+                <article class="order-card">
+                    <h3>طلب رقم #${esc(id)}</h3>
+                    <p>رقم العميل: ${esc(order.userId)}</p>
+                    <p>تاريخ الطلب: ${esc(order.requestDate)}</p>
+                    <p>الحالة: ${esc(labels[status] || status || 'غير محدد')}</p>
+                    <p>مسار التوصيل: المطعم ← المندوب ← نقطة التوزيع</p>
+                    ${action}
+                </article>
+            `;
+        }).join('');
+    }
+
+    // تحديث الطلب إلى تم التسليم
+
+    window.deliverOrder = async function(id) {
+        if (!confirm('هل تم تسليم الطلب إلى نقطة التوزيع؟')) return;
+
+        try {
+            await api('/courier/orders/' + id + '/status', {
+                method:'PUT',
+                body:JSON.stringify({ status:'delivered' })
+            });
+
+            notify('تم تسجيل تسليم الطلب إلى نقطة التوزيع.');
+            loadOrders();
+
+        } catch (error) {
+            notify('تعذر تحديث الطلب: ' + error.message);
+        }
+    };
+
+    loadOrders();
+
+})();
+</script>
+
+</body>
+</html>
